@@ -13,10 +13,11 @@ class StatsViewController: UIViewController {
     @IBOutlet weak var numberOfCompleted: UILabel!
     override func viewDidLoad() {
         super.viewDidLoad()
-        numberOfCompleted.text = String(completedList.count)
         // Do any additional setup after loading the view.
+        numberOfTasksCompleted.text = String(toDoList.count)
     }
 
+    @IBOutlet weak var numberOfTasksCompleted: UILabel!
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.

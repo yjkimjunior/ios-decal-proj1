@@ -167,6 +167,7 @@
                     </view>
                     <connections>
                         <outlet property="numberOfCompleted" destination="xYO-cR-zTJ" id="uyA-gb-jWe"/>
+                        <outlet property="numberOfTasksCompleted" destination="xYO-cR-zTJ" id="Iff-kC-Jgw"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="A2A-nc-psq" userLabel="First Responder" sceneMemberID="firstResponder"/>

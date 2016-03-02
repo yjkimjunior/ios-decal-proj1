@@ -8,16 +8,29 @@
 
 import UIKit
 
-var completedList = [String]()
+var toDoList:NSMutableArray = NSMutableArray()
 class ViewController: UIViewController, UITableViewDelegate, UITextFieldDelegate {
-    var toDoList = [String]()
+    
     @IBOutlet weak var item: UITextField!
+    @IBOutlet weak var toDoListTable: UITableView!
+    
     @IBAction func addItem(sender: AnyObject) {
-        toDoList.append(item.text!)
-        NSUserDefaults.standardUserDefaults().setObject(toDoList, forKey: "toDoList")
+        
+        let dataSet:NSMutableDictionary = NSMutableDictionary()
+        
+        if let taskText = item.text where !taskText.isEmpty {
+            dataSet.setObject(item.text!, forKey: "taskName")
+            dataSet.setObject(false, forKey: "completed")
+            dataSet.setObject(0, forKey: "hoursSinceCompleted")
+        }
+    
+        toDoList.addObject(dataSet)
+        
         item.text = ""
+        print(dataSet)
         toDoListTable.reloadData()
     }
+    
     
     @IBAction func editButton(sender: AnyObject) {
         if self.toDoListTable.editing == true {
@@ -28,14 +41,11 @@ class ViewController: UIViewController, UITableViewDelegate, UITextFieldDelegate
         }
     }
     
-    @IBOutlet weak var toDoListTable: UITableView!
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
-        if (NSUserDefaults.standardUserDefaults().objectForKey("toDoList") != nil) {
-            toDoList = NSUserDefaults.standardUserDefaults().objectForKey("toDoList") as! [String]
-        }
+        toDoListTable.reloadData()
     }
 
     override func didReceiveMemoryWarning() {
@@ -48,10 +58,14 @@ class ViewController: UIViewController, UITableViewDelegate, UITextFieldDelegate
     }
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cell = UITableViewCell(style: UITableViewCellStyle.Default, reuseIdentifier: "Cell")
+        let cell = toDoListTable.dequeueReusableCellWithIdentifier("Cell", forIndexPath: indexPath) as UITableViewCell
         
-        cell.textLabel?.text = toDoList[indexPath.row]
-        
+        let toDoItem:NSDictionary = toDoList.objectAtIndex(indexPath.row) as! NSDictionary
+        print(toDoItem)
+        cell.textLabel?.text = toDoItem.objectForKey("taskName") as? String
+//        let completed:Bool = (toDoItem.objectForKey("completed") as? Bool)!
+ 
+
         return cell
     }
     
@@ -66,21 +80,32 @@ class ViewController: UIViewController, UITableViewDelegate, UITextFieldDelegate
     
     /* stackoverflow.com/questions/24772457/swift-reorder-uitableview-cells */
     // Process the row move. This means updating the data model to correct the item indices.
-    func tableView(tableView: UITableView!, moveRowAtIndexPath sourceIndexPath: NSIndexPath!, toIndexPath destinationIndexPath: NSIndexPath!) {
-
-        let item : String = toDoList[sourceIndexPath.row];
-        toDoList.removeAtIndex(sourceIndexPath.row);
-        toDoList.insert(item, atIndex: destinationIndexPath.row)
-        
-    }
+//    func tableView(tableView: UITableView!, moveRowAtIndexPath sourceIndexPath: NSIndexPath!, toIndexPath destinationIndexPath: NSIndexPath!) {
+//
+//        let item : String = toDoList[sourceIndexPath.row];
+//        toDoList.removeAtIndex(sourceIndexPath.row);
+//        toDoList.insert(item, atIndex: destinationIndexPath.row)
+//        
+//    }
     
     func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
+
+        if editingStyle == .Delete {
+            // Delete the row from the data source
+            let mutableItemList:NSMutableArray = NSMutableArray()
+            
+            for dict:AnyObject in toDoList {
+                mutableItemList.addObject(dict as! NSDictionary)
+            }
+            
+            mutableItemList.removeObjectAtIndex(indexPath.row)
         
-        if editingStyle == UITableViewCellEditingStyle.Delete {
-            completedList.append(toDoList.removeAtIndex(indexPath.row))
+            toDoList = mutableItemList
+            
+            //toDoItems.removeObjectAtIndex(indexPath.row)
+            
+            tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Fade)
         }
-        NSUserDefaults.standardUserDefaults().setObject(toDoList, forKey: "toDoList")
-        toDoListTable.reloadData()
     }
     
     override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
